@@ -3,12 +3,7 @@
 var width;  // Largura do canvas
 var height; // Altura do canvas
 
-//  v1------v0
-//  |       | 
-//  |       |
-//  |       |
-//  v2------v3
-var positions = new Float32Array([ // Coordenada dos vertices
+var vertices = new Float32Array([ // Coordenada dos vertices
     // x, z, y
     // v0-v1-v2-v3
     -0.5, -0.5, 0.5,
@@ -17,7 +12,16 @@ var positions = new Float32Array([ // Coordenada dos vertices
     0.5, -0.5, 0.5,
 ]);
 
-var numPoints = positions.length / 2;
+var borda = new Float32Array([ // Coordenada dos vertices da borda
+// x, z, y
+// v0-v1-v2-v3
+-0.6, -0.6, 0.6,
+-0.6, 0.6, 0.6,
+-0.6, -0.6, 0.6,
+0.6, -0.6, 0.6,
+]);
+
+var numPoints = vertices.length / 2;
 
 var ANGLE_INCREMENT = 30.0; // Incremento do angulo (velocidade)
 
@@ -29,7 +33,12 @@ function mapToViewport (x, y, n = 5) {
 
 function getVertex (i) {
     let j = (i % numPoints) * 2;
-    return [positions[j], positions[j + 1]];
+    return [vertices[j], vertices[j + 1]];
+}
+
+function getVertex_borda (i) {
+    let j = (i % numPoints) * 2;
+    return [borda[j], borda[j + 1]];
 }
 
 function draw (ctx, angle, index) {
@@ -41,7 +50,36 @@ function draw (ctx, angle, index) {
     ctx.translate(x, y);
     ctx.rotate(-angle * Math.PI / 180);
     ctx.translate(-x, -y)
- 
+    
+    ctx.beginPath();
+    for (let i = 0; i < numPoints; i++) {
+        if (i == 3 || i == 4) continue;
+        let [x, y] = mapToViewport(...getVertex_borda(i).map((x) => x));
+        if (i == 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.fillStyle = "grey";
+    ctx.fill();
+    
+    // Cria gradiente de acordo com o vertice selecionado
+    let grad;
+    if (0 === index) {
+        grad = ctx.createLinearGradient(203, 150, x, y);
+        grad.addColorStop(0, 'rgba(12, 0, 255, 1)'); //red
+        grad.addColorStop(1, 'rgba(255, 0, 0, 1)');
+    } else if (2 === index) {
+        grad = ctx.createLinearGradient(167, 200, x, y);
+        grad.addColorStop(0, 'rgba(255, 0, 0, 1)'); //blue
+        grad.addColorStop(1, 'rgba(12, 0, 255, 1)');
+    } else if (5 === index) {
+        grad = ctx.createLinearGradient(210, 270, x, y);
+        grad.addColorStop(0, 'rgba(0, 255, 4, 1)'); //white
+        grad.addColorStop(1, 'rgba(255, 255, 255, 1)');
+    } else if (1 === index) {
+        grad = ctx.createLinearGradient(167, 200, x, y);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 1)'); //green
+        grad.addColorStop(1, 'rgba(0, 255, 4, 1)');
+    }
     ctx.beginPath();
     for (let i = 0; i < numPoints; i++) {
         if (i == 3 || i == 4) continue;
@@ -49,10 +87,41 @@ function draw (ctx, angle, index) {
         if (i == 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
     }
-    ctx.closePath();
- 
-    ctx.fillStyle = "red";
+    ctx.fillStyle = grad;
     ctx.fill();
+
+    draw_vertex(ctx)
+}
+
+function draw_vertex(ctx){
+    let size = 8
+    let [x_v, y_v] = mapToViewport(...getVertex(0));
+    ctx.beginPath();
+    ctx.rect(x_v - (size/2), y_v - (size/2) , size, size);
+    ctx.fillStyle = 'red';
+    ctx.fill();
+    ctx.closePath();
+
+    [x_v, y_v] = mapToViewport(...getVertex(1));
+    ctx.beginPath();
+    ctx.rect(x_v - (size/2), y_v - (size/2) , size, size);
+    ctx.fillStyle = 'green';
+    ctx.fill();
+    ctx.closePath();
+
+    [x_v, y_v] = mapToViewport(...getVertex(2));
+    ctx.beginPath();
+    ctx.rect(x_v - (size/2), y_v - (size/2) , size, size);
+    ctx.fillStyle = 'blue';
+    ctx.fill();
+    ctx.closePath();
+    
+    [x_v, y_v] = mapToViewport(...getVertex(5));
+    ctx.beginPath();
+    ctx.rect(x_v - (size/2), y_v - (size/2) , size, size);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+    ctx.closePath();
 }
 
 function calculateAngle (angle) {
@@ -92,7 +161,7 @@ function mainEntrance () {
                 currentIndex = 2;
                 break;
             case "w":
-                currentIndex = 3;
+                currentIndex = 5;
                 break;
         }
     });
