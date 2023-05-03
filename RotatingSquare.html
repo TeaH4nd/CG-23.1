@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Transformations</title>
+        <title>RotatingSquare</title>
     </head>
 
     <body>
@@ -11,11 +11,35 @@
         </canvas>
 
         <p>Type: "r", "g", "b" or "w"</p>
+        <p>Type : "+" or "-" to change size</p>
 
-        <script src="./lib/webgl-utils.js"></script>
-        <script src="./lib/webgl-debug.js"></script>
-        <script src="./lib/cuon-utils.js"></script>
-        <script src="./lib/cuon-matrix.js"></script>
+
+        <script id="vertexShader" type="x-shader/x-vertex">
+            uniform mat4 transform;
+            attribute vec4 a_Position;
+            attribute vec4 a_Color;
+            varying vec4 color;
+            void main()
+            {
+            color = a_Color;
+            gl_PointSize = 8.0;
+
+            gl_Position = transform * a_Position;
+            }
+        </script>
+
+        <script id="fragmentShader" type="x-shader/x-fragment">
+            // In a webgl fragment shader, float precision has to be specified before
+            // any other variable declarations (in this case, "medium" precision)
+            precision mediump float;
+            varying vec4 color;
+            void main()
+            {
+            gl_FragColor = color;
+            }
+        </script>
+        <script src="cuon-utils.js"></script>
+        <script src="cuon-matrix.js"></script>
         <script src="RotatingSquare.js"></script>
         <script>
             window.onload = mainEntrance;
