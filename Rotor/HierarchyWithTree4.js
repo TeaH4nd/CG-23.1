@@ -335,11 +335,11 @@ function handleKeyPress(event) {
   switch (ch) {
     case "b":
       joint.base += 15;
-      shaftMatrix.setTranslate(0, 0, 0).rotate(joint.base, 0, 1, 0);
+      shaftMatrix.setTranslate(0, -3, 0).rotate(joint.base, 0, 1, 0);
       break;
     case "B":
       joint.base -= 15;
-      shaftMatrix.setTranslate(0, 0, 0).rotate(joint.base, 0, 1, 0);
+      shaftMatrix.setTranslate(0, -3, 0).rotate(joint.base, 0, 1, 0);
       break;
     case "g":
       joint.generator += 15;
@@ -380,6 +380,11 @@ function handleKeyPress(event) {
       generatorMatrix.setTranslate(0, 10.5, 0);
       shaftMatrix.setTranslate(0, -3, 0);
       bladeMatrix.setTranslate(0, 0, 0);
+
+      joint['shaft'] = 0.0
+      joint['base'] = 0.0
+      joint['generator'] = 0.0
+      joint['blade'] = 0.0
 
       eye = [20, 20, 20];	
       viewMatrix = new Matrix4().setLookAt(	
